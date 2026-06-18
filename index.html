@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreditX Platform — Design Prototype</title>
+<style>
+/* ── DESIGN TOKENS ─────────────────────────────────── */
+:root {
+  --navy:        #0D1B3E;
+  --navy-light:  #162850;
+  --navy-dim:    #0A1530;
+  --teal:        #00B8C8;
+  --teal-dim:    #0096A4;
+  --teal-pale:   #E0F7FA;
+  --teal-mid:    #B2EBF2;
+  --gold:        #F5A623;
+  --gold-pale:   #FFF8EC;
+  --gold-dim:    #D4891A;
+  --slate:       #2C3E6B;
+  --slate-light: #3D5080;
+  --white:       #FFFFFF;
+  --bg:          #F4F6FB;
+  --bg2:         #ECEEF5;
+  --surface:     #FFFFFF;
+  --border:      #E2E6F0;
+  --border-mid:  #CDD3E4;
+  --text:        #1A1F36;
+  --text-mid:    #4A5178;
+  --text-muted:  #7B82A0;
+  --green:       #00875A;
+  --green-pale:  #E3F5EE;
+  --red:         #D93025;
+  --red-pale:    #FDECEA;
+  --amber:       #E65100;
+  --amber-pale:  #FFF3E0;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --shadow:      0 1px 4px rgba(13,27,62,0.08), 0 0 0 0.5px rgba(13,27,62,0.06);
+  --shadow-md:   0 4px 16px rgba(13,27,62,0.12), 0 0 0 0.5px rgba(13,27,62,0.06);
+  --font:        'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono:   'JetBrains Mono', 'Fira Code', monospace;
+  --sidebar-w:   220px;
+  --topbar-h:    52px;
+}
+
+/* ── RESET ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--font); font-size: 13px; color: var(--text); background: var(--bg); overflow: hidden; }
+button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+input, select { font-family: var(--font); font-size: 13px; }
+
+/* ── LAYOUT SHELL ───────────────────────────────────── */
+#app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ── SIDEBAR ────────────────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--navy); display: flex; flex-direction: column;
+  height: 100vh; overflow-y: auto; overflow-x: hidden;
+}
+#sidebar::-webkit-scrollbar { width: 3px; }
+#sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+.sb-logo {
+  padding: 18px 16px 14px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; gap: 9px;
+  flex-shrink: 0;
+}
+.sb-logo-mark {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--teal); display: flex; align-items: center; justify-content: center;
+}
+.sb-logo-mark svg { width: 16px; height: 16px; fill: var(--navy); }
+.sb-logo-text { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+.sb-logo-sub { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1px; }
+
+.sb-section { padding: 12px 10px 4px; }
+.sb-section-label {
+  font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.3);
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 0 6px; margin-bottom: 4px;
+}
+.sb-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.12s; margin-bottom: 1px;
+  user-select: none;
+}
+.sb-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.sb-item.active { background: rgba(0,184,200,0.15); color: var(--teal); }
+.sb-item.active .sb-icon { color: var(--teal); }
+.sb-icon { font-size: 15px; width: 18px; flex-shrink: 0; opacity: 0.7; }
+.sb-item.active .sb-icon { opacity: 1; }
+.sb-badge {
+  margin-left: auto; background: var(--teal); color: var(--navy);
+  font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center;
+}
+.sb-badge.amber { background: var(--gold); }
+
+.sb-persona {
+  margin: 12px 10px; padding: 10px 12px;
+  background: rgba(255,255,255,0.05); border-radius: var(--radius-md);
+  border: 0.5px solid rgba(255,255,255,0.08);
+}
+.sb-persona-label { font-size: 9px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.persona-btn {
+  display: flex; align-items: center; gap: 7px; width: 100%;
+  padding: 5px 8px; border-radius: var(--radius-sm);
+  font-size: 11px; color: rgba(255,255,255,0.5);
+  cursor: pointer; transition: all 0.1s;
+}
+.persona-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+.persona-btn.active { background: rgba(0,184,200,0.12); color: var(--teal); }
+.persona-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* ── MAIN AREA ──────────────────────────────────────── */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── TOPBAR ─────────────────────────────────────────── */
+#topbar {
+  height: var(--topbar-h); flex-shrink: 0;
+  background: var(--white); border-bottom: 0.5px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 12px;
+}
+.topbar-title { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+.topbar-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.topbar-search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border: 0.5px solid var(--border);
+  border-radius: var(--radius-md); padding: 6px 12px; width: 200px;
+}
+.topbar-search input { background: none; border: none; outline: none; font-size: 12px; color: var(--text); width: 100%; }
+.topbar-search input::placeholder { color: var(--text-muted); }
+.topbar-icon-btn {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-mid); font-size: 16px;
+  border: 0.5px solid var(--border); background: var(--white);
+  cursor: pointer; transition: all 0.1s; position: relative;
+}
+.topbar-icon-btn:hover { background: var(--bg); }
+.notif-dot {
+  position: absolute; top: 4px; right: 4px;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--red);
+  border: 1.5px solid var(--white);
+}
+.topbar-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--navy); color: var(--teal); font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  flex-shrink: 0;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.1s;
+}
+.btn-primary { background: var(--teal); color: var(--navy); }
+.btn-primary:hover { background: var(--teal-dim); }
+.btn-outline { background: var(--white); color: var(--text-mid); border: 0.5px solid var(--border); }
+.btn-outline:hover { background: var(--bg); }
+.btn-navy { background: var(--navy); color: var(--teal); }
+.btn-navy:hover { background: var(--navy-light); }
+
+/* ── CONTENT ─────────────────────────────────────────── */
+#content { flex: 1; overflow-y: auto; padding: 20px; }
+#content::-webkit-scrollbar { width: 5px; }
+#content::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── METRIC CARDS ────────────────────────────────────── */
+.metric-row { display: grid; gap: 12px; margin-bottom: 16px; }
+.metric-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.metric-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.metric-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 16px 18px; box-shadow: var(--shadow);
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; letter-spacing: 0.02em; }
+.metric-val { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 6px; }
+.metric-delta { font-size: 11px; display: flex; align-items: center; gap: 3px; }
+.delta-up { color: var(--green); }
+.delta-dn { color: var(--red); }
+.metric-accent { width: 3px; height: 32px; border-radius: 2px; background: var(--teal); margin-right: 4px; flex-shrink: 0; }
+
+/* ── CARDS ───────────────────────────────────────────── */
+.card {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 0.5px solid var(--border); box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 0;
+}
+.card-title { font-size: 12px; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.05em; }
+.card-body { padding: 14px 16px; }
+
+/* ── GRID ────────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+/* ── TABLES ──────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th {
+  text-align: left; padding: 8px 12px;
+  font-size: 10px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 0.5px solid var(--border); background: var(--bg);
+}
+.data-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg); }
+.data-table .cell-primary { font-weight: 600; color: var(--text); }
+.data-table .cell-muted { color: var(--text-muted); font-size: 11px; }
+
+/* ── BADGES ──────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+  letter-spacing: 0.02em; white-space: nowrap;
+}
+.badge-green { background: var(--green-pale); color: var(--green); }
+.badge-amber { background: var(--amber-pale); color: var(--amber); }
+.badge-red { background: var(--red-pale); color: var(--red); }
+.badge-teal { background: var(--teal-pale); color: var(--teal-dim); }
+.badge-navy { background: rgba(13,27,62,0.08); color: var(--navy); }
+.badge-muted { background: var(--bg2); color: var(--text-muted); }
+
+/* ── BAR CHARTS ──────────────────────────────────────── */
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-label { font-size: 11px; color: var(--text-mid); width: 130px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.bar-val { font-size: 11px; color: var(--text-mid); min-width: 52px; text-align: right; font-weight: 500; }
+
+/* ── PROGRESS ────────────────────────────────────────── */
+.progress-item { margin-bottom: 12px; }
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
+.progress-track { height: 8px; background: var(--bg2); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; }
+
+/* ── TIMELINE ────────────────────────────────────────── */
+.timeline-item { display: flex; gap: 12px; margin-bottom: 14px; }
+.tl-left { display: flex; flex-direction: column; align-items: center; width: 20px; flex-shrink: 0; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; border: 2px solid var(--white); box-shadow: 0 0 0 1.5px currentColor; }
+.tl-line { width: 1px; flex: 1; background: var(--border); margin: 4px 0; }
+.tl-content { flex: 1; padding-bottom: 4px; }
+.tl-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.tl-sub { font-size: 11px; color: var(--text-muted); }
+
+/* ── PIPELINE ────────────────────────────────────────── */
+.pipeline { display: flex; margin-bottom: 16px; }
+.pipe-step {
+  flex: 1; padding: 10px 8px 10px 20px; font-size: 10px; font-weight: 600;
+  color: var(--text-muted); background: var(--bg2);
+  border: 0.5px solid var(--border); margin-right: -1px;
+  position: relative; cursor: pointer; text-align: center;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%);
+  transition: all 0.1s;
+}
+.pipe-step:first-child { clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%); border-radius: 6px 0 0 6px; padding-left: 12px; }
+.pipe-step:last-child { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%); border-radius: 0 6px 6px 0; }
+.pipe-step.done { background: var(--teal-pale); color: var(--teal-dim); border-color: var(--teal-mid); }
+.pipe-step.active { background: var(--navy); color: var(--teal); border-color: var(--navy); z-index: 1; }
+.pipe-step.active::before { content: ''; }
+.pipe-num { font-size: 16px; font-weight: 700; display: block; margin-bottom: 2px; }
+
+/* ── CHECKLIST ───────────────────────────────────────── */
+.check-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 0.5px solid var(--border);
+}
+.check-item:last-child { border-bottom: none; }
+.check-icon {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0; margin-top: 1px;
+}
+.check-done { background: var(--green-pale); color: var(--green); border: 1.5px solid var(--green); }
+.check-active { background: var(--teal-pale); color: var(--teal-dim); border: 1.5px solid var(--teal); }
+.check-pending { background: var(--bg2); color: var(--text-muted); border: 1.5px solid var(--border-mid); }
+
+/* ── DPD BUCKETS ─────────────────────────────────────── */
+.dpd-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
+.dpd-cell {
+  padding: 12px 10px; border-radius: var(--radius-md); text-align: center;
+  border: 0.5px solid; cursor: pointer; transition: all 0.12s;
+}
+.dpd-cell:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.dpd-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.dpd-sub { font-size: 10px; margin-bottom: 6px; }
+.dpd-pct { font-size: 18px; font-weight: 700; }
+.dpd-action { font-size: 9px; margin-top: 4px; opacity: 0.8; }
+
+/* ── PAYOUT HERO ─────────────────────────────────────── */
+.payout-hero {
+  background: var(--navy); border-radius: var(--radius-xl); padding: 24px 28px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 24px; margin-bottom: 16px;
+}
+.payout-hero .metric-label { color: rgba(255,255,255,0.45); }
+.payout-hero .metric-val { color: var(--white); font-size: 30px; }
+.payout-hero .metric-delta { color: rgba(255,255,255,0.4); }
+
+/* ── SPARKLINE ───────────────────────────────────────── */
+.sparkline { display: flex; align-items: flex-end; gap: 2px; height: 28px; }
+.spark-bar { width: 5px; border-radius: 2px 2px 0 0; background: var(--teal-mid); }
+.spark-bar.hi { background: var(--teal); }
+
+/* ── MODULE RAIL ─────────────────────────────────────── */
+.module-rail { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+.module-card {
+  background: var(--white); border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px 12px; text-align: center;
+  cursor: pointer; transition: all 0.12s; box-shadow: var(--shadow);
+}
+.module-card:hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.module-card.active { border-color: var(--teal); background: var(--teal-pale); }
+.module-icon {
+  width: 36px; height: 36px; border-radius: 10px; margin: 0 auto 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.module-name { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.module-desc { font-size: 10px; color: var(--text-muted); }
+
+/* ── PERSONA CARDS ───────────────────────────────────── */
+.persona-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+.persona-card {
+  background: var(--white); border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 16px; cursor: pointer;
+  transition: all 0.12s; box-shadow: var(--shadow);
+}
+.persona-card:hover { border-color: var(--teal); box-shadow: var(--shadow-md); }
+.persona-card.selected { border-color: var(--teal); border-width: 1.5px; }
+.persona-avatar {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 10px;
+}
+.persona-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.persona-role { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
+.persona-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ── ORIGINATION STAGES ──────────────────────────────── */
+.stage-rail { display: flex; align-items: stretch; gap: 0; margin-bottom: 16px; }
+.stage-step {
+  flex: 1; padding: 12px 8px; text-align: center;
+  background: var(--bg2); border: 0.5px solid var(--border);
+  margin-right: -0.5px; cursor: pointer; transition: all 0.12s;
+  position: relative;
+}
+.stage-step:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.stage-step:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-right: 0; }
+.stage-step.done { background: var(--teal-pale); border-color: var(--teal-mid); }
+.stage-step.active { background: var(--navy); border-color: var(--navy); z-index: 1; }
+.stage-step:hover:not(.active) { background: var(--bg); }
+.stage-num-circle {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; margin: 0 auto 6px;
+}
+.stage-step .stage-label { font-size: 10px; font-weight: 600; color: var(--text-mid); }
+.stage-step.active .stage-label { color: var(--teal); }
+.stage-step.done .stage-label { color: var(--teal-dim); }
+.stage-step .stage-sub { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+.stage-step.active .stage-sub { color: rgba(255,255,255,0.4); }
+
+/* ── FEATURE CHIPS ───────────────────────────────────── */
+.chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip {
+  display: flex; align-items: center; gap: 4px; padding: 4px 10px;
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: 20px; font-size: 11px; color: var(--text-mid);
+}
+
+/* ── SCROLLABLE CONTENT AREA ─────────────────────────── */
+.scroll-area { overflow-y: auto; }
+.scroll-area::-webkit-scrollbar { width: 4px; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 2px; }
+
+/* ── SCREEN HEADER ───────────────────────────────────── */
+.screen-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
+.screen-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.screen-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+/* ── DIVIDER ─────────────────────────────────────────── */
+.divider { height: 0.5px; background: var(--border); margin: 14px 0; }
+
+/* ── SECTION TITLE ───────────────────────────────────── */
+.section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+
+/* ── DETAIL PANEL ────────────────────────────────────── */
+#persona-detail-panel { transition: all 0.2s; }
+
+/* ── EMPTY PLACEHOLDER ───────────────────────────────── */
+.empty-cell { height: 36px; }
+
+/* ── RESPONSIVE GUARD ────────────────────────────────── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 180px; }
+  .metric-row.cols-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2, .grid-2-1 { grid-template-columns: 1fr; }
+  .persona-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN OVERLAY ═══ -->
+<div id="login-overlay" style="
+  position:fixed;inset:0;z-index:9999;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+">
+  <div style="
+    background:var(--white);border-radius:var(--radius-xl);
+    padding:40px 44px;width:380px;box-shadow:var(--shadow-md);
+  ">
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px">
+      <div style="width:38px;height:38px;border-radius:10px;background:var(--teal);display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 16 16" width="20" height="20" fill="var(--navy)"><path d="M3 8L7 4L11 8L7 12Z"/><circle cx="11" cy="8" r="2.5"/></svg>
+      </div>
+      <div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);letter-spacing:-0.02em">CreditX</div>
+        <div style="font-size:10px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase">MSME Platform</div>
+      </div>
+    </div>
+    <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px">Sign in</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:24px">Full-lifecycle MSME lending infrastructure</div>
+    <!-- Email -->
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:5px">Email address</label>
+      <input id="login-email" type="email" placeholder="you@company.com" style="
+        width:100%;padding:10px 12px;border:1px solid var(--border);
+        border-radius:var(--radius-sm);font-size:13px;color:var(--text);
+        outline:none;transition:border 0.1s;
+      " onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'">
+    </div>
+    <!-- Password -->
+    <div style="margin-bottom:8px">
+      <label style="font-size:11px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:5px">Password</label>
+      <input id="login-pass" type="password" placeholder="Enter your password" style="
+        width:100%;padding:10px 12px;border:1px solid var(--border);
+        border-radius:var(--radius-sm);font-size:13px;color:var(--text);
+        outline:none;transition:border 0.1s;
+      " onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <!-- Error -->
+    <div id="login-err" style="font-size:11px;color:var(--red);margin-bottom:10px;min-height:16px"></div>
+    <!-- Submit -->
+    <button onclick="doLogin()" style="
+      width:100%;padding:11px;background:var(--navy);color:var(--teal);
+      border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;
+      cursor:pointer;transition:background 0.1s;margin-bottom:16px;letter-spacing:0.01em;
+    " onmouseover="this.style.background='var(--navy-light)'" onmouseout="this.style.background='var(--navy)'">
+      Sign in to CreditX
+    </button>
+    <div style="text-align:center;font-size:11px;color:var(--text-muted)">Secured · Role-adaptive · Audit-logged</div>
+  </div>
+</div>
+
+<div id="app">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-mark">
+      <svg viewBox="0 0 16 16"><path d="M3 8L7 4L11 8L7 12Z"/><circle cx="11" cy="8" r="2.5"/></svg>
+    </div>
+    <div>
+      <div class="sb-logo-text">CreditX</div>
+      <div class="sb-logo-sub">MSME Platform</div>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Command</div>
+    <div class="sb-item active" onclick="nav('overview',this)">
+      <span class="sb-icon">⬡</span> Platform Overview
+    </div>
+    <div class="sb-item" onclick="nav('portfolio',this)">
+      <span class="sb-icon">◈</span> Portfolio Command
+      <span class="sb-badge amber">!</span>
+    </div>
+    <div class="sb-item" onclick="nav('revenue',this)">
+      <span class="sb-icon">◉</span> Revenue Analytics
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Operations</div>
+    <div class="sb-item" onclick="nav('onboard',this)">
+      <span class="sb-icon">⊞</span> Lender Onboarding
+      <span class="sb-badge">4</span>
+    </div>
+    <div class="sb-item" onclick="nav('payout',this)">
+      <span class="sb-icon">◎</span> Payout Engine
+    </div>
+    <div class="sb-item" onclick="nav('collectxq',this)">
+      <span class="sb-icon">↺</span> CollectXQ
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Credit Lifecycle</div>
+    <div class="sb-item" onclick="nav('origination',this)">
+      <span class="sb-icon">⊕</span> Origination
+    </div>
+    <div class="sb-item" onclick="nav('underwriting',this)">
+      <span class="sb-icon">⊛</span> Underwriting
+      <span class="sb-badge">12</span>
+    </div>
+    <div class="sb-item" onclick="nav('disbursal',this)">
+      <span class="sb-icon">⇒</span> Disbursal
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Personas</div>
+    <div class="sb-item" onclick="nav('personas',this)">
+      <span class="sb-icon">◑</span> All Personas
+    </div>
+  </div>
+
+  <div class="sb-persona">
+    <div class="sb-persona-label">Active View</div>
+    <div class="persona-btn active" onclick="switchPersona('CXO',this)">
+      <div class="persona-dot" style="background:#00B8C8"></div> CXO View
+    </div>
+    <div class="persona-btn" onclick="switchPersona('Credit Officer',this)">
+      <div class="persona-dot" style="background:#4A90D9"></div> Credit Officer
+    </div>
+    <div class="persona-btn" onclick="switchPersona('Field RM',this)">
+      <div class="persona-dot" style="background:#F5A623"></div> Field RM
+    </div>
+    <div class="persona-btn" onclick="switchPersona('Lender Admin',this)">
+      <div class="persona-dot" style="background:#7C6AF7"></div> Lender Admin
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div id="main">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div style="flex:1">
+      <div class="topbar-title" id="topbar-title">Platform Overview</div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-sub">Full-lifecycle MSME lending infrastructure · June 2026</div>
+    </div>
+    <div class="topbar-search">
+      <span style="color:var(--text-muted);font-size:14px">⌕</span>
+      <input type="text" placeholder="Search lenders, applications…">
+    </div>
+    <button class="topbar-icon-btn" title="Notifications">
+      🔔<div class="notif-dot"></div>
+    </button>
+    <button class="topbar-icon-btn" title="Settings">⚙</button>
+    <div class="topbar-avatar" title="John — CXO">JK</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ═══════════════ SCREEN: OVERVIEW ═══════════════ -->
+    <div id="screen-overview" class="screen active">
+      <div class="screen-header">
+        <div>
+          <div class="screen-title">Platform Overview</div>
+          <div class="screen-sub">Real-time command centre · CXO view · June 17, 2026</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline">↓ Export</button>
+          <button class="btn btn-primary">+ New Lender</button>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metric-row cols-4">
+        <div class="metric-card" style="border-top:3px solid var(--teal)">
+          <div class="metric-label">Active Lenders</div>
+          <div class="metric-val" style="color:var(--teal)">38</div>
+          <div class="metric-delta delta-up">▲ +6 this quarter</div>
+        </div>
+        <div class="metric-card" style="border-top:3px solid var(--navy)">
+          <div class="metric-label">AUM on Platform</div>
+          <div class="metric-val">₹2,840 Cr</div>
+          <div class="metric-delta delta-up">▲ +18% MoM</div>
+        </div>
+        <div class="metric-card" style="border-top:3px solid var(--green)">
+          <div class="metric-label">Collections Efficiency</div>
+          <div class="metric-val">91.4%</div>
+          <div class="metric-delta delta-up">▲ +2.1pp MoM</div>
+        </div>
+        <div class="metric-card" style="border-top:3px solid var(--gold)">
+          <div class="metric-label">Platform Revenue MTD</div>
+          <div class="metric-val">₹1.2 Cr</div>
+          <div class="metric-delta delta-dn">▼ -3% vs target</div>
+        </div>
+      </div>
+
+      <!-- Module Rail -->
+      <div class="section-title">Five-Module Architecture</div>
+      <div class="module-rail">
+        <div class="module-card active" onclick="nav('origination',null)">
+          <div class="module-icon" style="background:var(--teal-pale);color:var(--teal)">⊕</div>
+          <div class="module-name">Origination</div>
+          <div class="module-desc">Sourcing & pipeline</div>
+        </div>
+        <div class="module-card" onclick="nav('underwriting',null)">
+          <div class="module-icon" style="background:rgba(13,27,62,0.06);color:var(--navy)">⊛</div>
+          <div class="module-name">Underwriting</div>
+          <div class="module-desc">Credit decisioning</div>
+        </div>
+        <div class="module-card">
+          <div class="module-icon" style="background:var(--gold-pale);color:var(--gold-dim)">⇒</div>
+          <div class="module-name">Disbursal</div>
+          <div class="module-desc">Funds & NACH setup</div>
+        </div>
+        <div class="module-card">
+          <div class="module-icon" style="background:rgba(13,27,62,0.06);color:var(--slate)">◈</div>
+          <div class="module-name">Monitoring</div>
+          <div class="module-desc">Portfolio health</div>
+        </div>
+        <div class="module-card" onclick="nav('collectxq',null)">
+          <div class="module-icon" style="background:var(--red-pale);color:var(--red)">↺</div>
+          <div class="module-name">CollectXQ</div>
+          <div class="module-desc">Collections engine</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Activity -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent Activity</div><span class="badge badge-teal">Live</span></div>
+          <div class="card-body">
+            <div class="timeline-item">
+              <div class="tl-left"><div class="tl-dot" style="color:var(--teal)"></div><div class="tl-line"></div></div>
+              <div class="tl-content"><div class="tl-title">Finova Capital onboarded</div><div class="tl-sub">Lender · NBFC · 2h ago</div></div>
+              <span class="badge badge-teal">New</span>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-left"><div class="tl-dot" style="color:var(--gold)"></div><div class="tl-line"></div></div>
+              <div class="tl-content"><div class="tl-title">Payout batch — ₹18.4L processed</div><div class="tl-sub">148 partners · 6h ago</div></div>
+              <span class="badge badge-green">Done</span>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-left"><div class="tl-dot" style="color:var(--amber)"></div><div class="tl-line"></div></div>
+              <div class="tl-content"><div class="tl-title">CollectXQ DPD 30+ campaign active</div><div class="tl-sub">5,240 accounts · 1d ago</div></div>
+              <span class="badge badge-amber">Active</span>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-left"><div class="tl-dot" style="color:var(--text-muted)"></div></div>
+              <div class="tl-content"><div class="tl-title">AA consent refresh — 1,820 accounts</div><div class="tl-sub">Monitoring module · 2d ago</div></div>
+              <span class="badge badge-muted">Done</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue by product -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Revenue by Product</div><span style="font-size:11px;color:var(--text-muted)">May 2026</span></div>
+          <div class="card-body">
+            <div class="bar-row"><div class="bar-label">Business Term Loan</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--teal)"></div></div><div class="bar-val">₹48.2L</div></div>
+            <div class="bar-row"><div class="bar-label">MFI Group Loans</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--navy)"></div></div><div class="bar-val">₹34.1L</div></div>
+            <div class="bar-row"><div class="bar-label">Invoice Discounting</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--gold)"></div></div><div class="bar-val">₹23.6L</div></div>
+            <div class="bar-row"><div class="bar-label">KCC / Agri Loans</div><div class="bar-track"><div class="bar-fill" style="width:22%;background:var(--slate-light)"></div></div><div class="bar-val">₹13.8L</div></div>
+            <div class="bar-row"><div class="bar-label">MSME Overdraft</div><div class="bar-track"><div class="bar-fill" style="width:14%;background:var(--text-muted)"></div></div><div class="bar-val">₹8.7L</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: PORTFOLIO ═══════════════ -->
+    <div id="screen-portfolio" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">Portfolio Command</div><div class="screen-sub">PAR · DPD buckets · ECL · NPA tracking · June 2026</div></div>
+        <div class="header-actions"><button class="btn btn-outline">↓ Report</button><button class="btn btn-navy">ECL Model</button></div>
+      </div>
+      <div class="metric-row cols-4">
+        <div class="metric-card" style="border-top:3px solid var(--amber)">
+          <div class="metric-label">PAR 30</div>
+          <div class="metric-val" style="color:var(--amber)">4.2%</div>
+          <div class="metric-delta delta-up">▲ -0.3pp MoM</div>
+        </div>
+        <div class="metric-card" style="border-top:3px solid var(--red)">
+          <div class="metric-label">PAR 90 / NPA</div>
+          <div class="metric-val" style="color:var(--red)">1.8%</div>
+          <div class="metric-delta delta-dn">▼ +0.1pp MoM</div>
+        </div>
+        <div class="metric-card" style="border-top:3px solid var(--navy)">
+          <div class="metric-label">ECL Provision</div>
+          <div class="metric-val">₹142 Cr</div>
+          <div class="metric-delta delta-up">Within RBI limits</div>
+        </div>
+        <div class="metric-card" style="border-top:3px solid var(--teal)">
+          <div class="metric-label">PTP Fulfilment</div>
+          <div class="metric-val" style="color:var(--teal)">68%</div>
+          <div class="metric-delta delta-up">▲ +4pp MoM</div>
+        </div>
+      </div>
+      <div class="section-title">DPD Bucket Distribution</div>
+      <div class="dpd-grid">
+        <div class="dpd-cell" style="background:#E8F5E9;border-color:#A5D6A7;color:#2E7D32">
+          <div class="dpd-label">DPD 0</div><div class="dpd-sub">Current · SMA-0</div>
+          <div class="dpd-pct">88.2%</div><div class="dpd-action">NACH debit · Auto</div>
+        </div>
+        <div class="dpd-cell" style="background:#FFF8E1;border-color:#FFE082;color:#E65100">
+          <div class="dpd-label">DPD 1–30</div><div class="dpd-sub">Early stress</div>
+          <div class="dpd-pct">7.0%</div><div class="dpd-action">SMS + IVR nudge</div>
+        </div>
+        <div class="dpd-cell" style="background:#FFF3E0;border-color:#FFCC80;color:#BF360C">
+          <div class="dpd-label">DPD 31–60</div><div class="dpd-sub">Sub-standard · SMA-1</div>
+          <div class="dpd-pct">2.8%</div><div class="dpd-action">Field visit · PTP</div>
+        </div>
+        <div class="dpd-cell" style="background:#FFEBEE;border-color:#EF9A9A;color:#C62828">
+          <div class="dpd-label">DPD 61–90</div><div class="dpd-sub">Doubtful · SMA-2</div>
+          <div class="dpd-pct">1.2%</div><div class="dpd-action">Legal notice</div>
+        </div>
+        <div class="dpd-cell" style="background:#FCE4EC;border-color:#F48FB1;color:#880E4F">
+          <div class="dpd-label">DPD 90+</div><div class="dpd-sub">NPA · Loss asset</div>
+          <div class="dpd-pct">0.8%</div><div class="dpd-action">SARFAESI · ECL 100%</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">ECL Provision by Lender</div></div>
+          <div class="card-body">
+            <div class="bar-row"><div class="bar-label">Arohan MFI</div><div class="bar-track"><div class="bar-fill" style="width:72%;background:var(--amber)"></div></div><div class="bar-val">₹38.2 Cr</div></div>
+            <div class="bar-row"><div class="bar-label">Suryoday SFB</div><div class="bar-track"><div class="bar-fill" style="width:54%;background:var(--amber)"></div></div><div class="bar-val">₹28.6 Cr</div></div>
+            <div class="bar-row"><div class="bar-label">Vistaar Finance</div><div class="bar-track"><div class="bar-fill" style="width:44%;background:var(--red)"></div></div><div class="bar-val">₹23.4 Cr</div></div>
+            <div class="bar-row"><div class="bar-label">Lendingkart</div><div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--green)"></div></div><div class="bar-val">₹15.8 Cr</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">CollectXQ Campaigns</div><span class="badge badge-teal">Live</span></div>
+          <div class="card-body">
+            <div class="timeline-item">
+              <div class="tl-left"><div class="tl-dot" style="color:var(--teal)"></div><div class="tl-line"></div></div>
+              <div class="tl-content"><div class="tl-title">DPD 1–30 · SMS + IVR</div><div class="tl-sub">5,240 accts · 72% contacted · 41% paid</div></div>
+              <span class="badge badge-green">Active</span>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-left"><div class="tl-dot" style="color:var(--amber)"></div><div class="tl-line"></div></div>
+              <div class="tl-content"><div class="tl-title">DPD 31–60 · Field dispatch</div><div class="tl-sub">820 accts · 94 agents · PTP: 68%</div></div>
+              <span class="badge badge-amber">Active</span>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-left"><div class="tl-dot" style="color:var(--red)"></div></div>
+              <div class="tl-content"><div class="tl-title">DPD 90+ · Legal + SARFAESI</div><div class="tl-sub">112 accts · 18 SARFAESI cases filed</div></div>
+              <span class="badge badge-red">Legal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: REVENUE ═══════════════ -->
+    <div id="screen-revenue" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">Revenue Analytics</div><div class="screen-sub">Product · Lender · Module breakdown · May 2026</div></div>
+        <div class="header-actions"><button class="btn btn-outline">May 2026 ▾</button><button class="btn btn-outline">↓</button></div>
+      </div>
+      <div class="metric-row cols-4">
+        <div class="metric-card" style="border-top:3px solid var(--teal)"><div class="metric-label">Gross Revenue</div><div class="metric-val">₹1.28 Cr</div><div class="metric-delta delta-up">▲ +22% YoY</div></div>
+        <div class="metric-card" style="border-top:3px solid var(--navy)"><div class="metric-label">Processing Fees</div><div class="metric-val">₹48.6L</div><div class="metric-delta delta-up">▲ +14%</div></div>
+        <div class="metric-card" style="border-top:3px solid var(--slate)"><div class="metric-label">Platform SaaS</div><div class="metric-val">₹32.4L</div><div class="metric-delta delta-up">▲ +8%</div></div>
+        <div class="metric-card" style="border-top:3px solid var(--red)"><div class="metric-label">Collections Take Rate</div><div class="metric-val">₹16.2L</div><div class="metric-delta delta-dn">▼ -5% vs plan</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Revenue by Lender</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th>Lender</th><th>AUM</th><th>Revenue</th><th>Yield</th><th>Trend</th></tr></thead>
+              <tbody>
+                <tr><td><div class="cell-primary">Arohan MFI</div></td><td>₹420 Cr</td><td class="cell-primary">₹28.4L</td><td><span class="badge badge-green">0.68%</span></td><td><div class="sparkline">${sp([4,5,4,6,5,7,8])}</div></td></tr>
+                <tr><td><div class="cell-primary">Suryoday SFB</div></td><td>₹310 Cr</td><td class="cell-primary">₹21.7L</td><td><span class="badge badge-green">0.70%</span></td><td><div class="sparkline">${sp([3,4,5,5,6,6,7])}</div></td></tr>
+                <tr><td><div class="cell-primary">Vistaar Finance</div></td><td>₹275 Cr</td><td class="cell-primary">₹18.3L</td><td><span class="badge badge-amber">0.66%</span></td><td><div class="sparkline">${sp([5,4,5,4,5,5,6])}</div></td></tr>
+                <tr><td><div class="cell-primary">Lendingkart</div></td><td>₹195 Cr</td><td class="cell-primary">₹12.4L</td><td><span class="badge badge-green">0.64%</span></td><td><div class="sparkline">${sp([2,3,3,4,4,5,5])}</div></td></tr>
+                <tr><td><div class="cell-primary">Others (34)</div></td><td>₹1,640 Cr</td><td class="cell-primary">₹47.7L</td><td><span class="badge badge-teal">0.61%</span></td><td><div class="sparkline">${sp([5,6,6,7,7,8,9])}</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Module Revenue Split</div></div>
+          <div class="card-body">
+            <div class="progress-item"><div class="progress-header"><span>Origination fees</span><span style="font-weight:600">₹38.4L</span></div><div class="progress-track"><div class="progress-fill" style="width:80%;background:var(--teal)"></div></div></div>
+            <div class="progress-item"><div class="progress-header"><span>Underwriting SaaS</span><span style="font-weight:600">₹22.6L</span></div><div class="progress-track"><div class="progress-fill" style="width:55%;background:var(--navy)"></div></div></div>
+            <div class="progress-item"><div class="progress-header"><span>CollectXQ take rate</span><span style="font-weight:600">₹16.2L</span></div><div class="progress-track"><div class="progress-fill" style="width:40%;background:var(--red)"></div></div></div>
+            <div class="progress-item"><div class="progress-header"><span>Monitoring & AA</span><span style="font-weight:600">₹9.1L</span></div><div class="progress-track"><div class="progress-fill" style="width:24%;background:var(--slate)"></div></div></div>
+            <div class="progress-item"><div class="progress-header"><span>Partner SaaS</span><span style="font-weight:600">₹8.4L</span></div><div class="progress-track"><div class="progress-fill" style="width:20%;background:var(--gold)"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: ONBOARDING ═══════════════ -->
+    <div id="screen-onboard" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">Lender Onboarding</div><div class="screen-sub">Bank & NBFC entry pipeline · 4 active</div></div>
+        <div class="header-actions"><button class="btn btn-primary">+ New Onboard</button></div>
+      </div>
+      <div class="pipeline">
+        <div class="pipe-step done"><span class="pipe-num">12</span>KYB & Docs</div>
+        <div class="pipe-step done"><span class="pipe-num">9</span>API Config</div>
+        <div class="pipe-step active"><span class="pipe-num">4</span>Sandbox UAT</div>
+        <div class="pipe-step"><span class="pipe-num">2</span>Credit Policy</div>
+        <div class="pipe-step"><span class="pipe-num">1</span>Go Live</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Active Onboardings</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th>Institution</th><th>Type</th><th>Stage</th><th>Days</th></tr></thead>
+              <tbody>
+                <tr><td><div class="cell-primary">Finova Capital</div><div class="cell-muted">Mumbai NBFC</div></td><td><span class="badge badge-navy">NBFC</span></td><td><span class="badge badge-amber">Sandbox UAT</span></td><td style="color:var(--text-muted)">D+3</td></tr>
+                <tr><td><div class="cell-primary">Suryoday SFB</div><div class="cell-muted">Pune</div></td><td><span class="badge badge-teal">SFB</span></td><td><span class="badge badge-navy">API Config</span></td><td style="color:var(--text-muted)">D+7</td></tr>
+                <tr><td><div class="cell-primary">Vistaar Finance</div><div class="cell-muted">Bangalore</div></td><td><span class="badge badge-navy">NBFC</span></td><td><span class="badge badge-green">Credit Policy</span></td><td style="color:var(--text-muted)">D+12</td></tr>
+                <tr><td><div class="cell-primary">SBI MSME Branch</div><div class="cell-muted">Delhi</div></td><td><span class="badge badge-muted">PSB</span></td><td><span class="badge badge-muted">KYB & Docs</span></td><td style="color:var(--text-muted)">D+1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Finova Capital — Checklist</div><span class="badge badge-amber">UAT</span></div>
+          <div class="card-body">
+            <div class="check-item"><div class="check-icon check-done">✓</div><div><div style="font-size:12px;font-weight:600">MOA / AOA & KYB documents</div><div class="cell-muted">Verified · 14 Jun</div></div></div>
+            <div class="check-item"><div class="check-icon check-done">✓</div><div><div style="font-size:12px;font-weight:600">Credit policy sheet approved</div><div class="cell-muted">Underwriting sign-off done</div></div></div>
+            <div class="check-item"><div class="check-icon check-done">✓</div><div><div style="font-size:12px;font-weight:600">API credentials & OAuth</div><div class="cell-muted">Webhook configured</div></div></div>
+            <div class="check-item"><div class="check-icon check-active">↻</div><div><div style="font-size:12px;font-weight:600;color:var(--teal-dim)">Sandbox UAT — origination flow</div><div class="cell-muted">2 of 5 test cases passed</div></div></div>
+            <div class="check-item"><div class="check-icon check-pending">○</div><div><div style="font-size:12px;font-weight:600;color:var(--text-muted)">NACH mandate registration</div><div class="cell-muted">Pending UAT sign-off</div></div></div>
+            <div class="check-item"><div class="check-icon check-pending">○</div><div><div style="font-size:12px;font-weight:600;color:var(--text-muted)">Go-live approval</div><div class="cell-muted">Final step</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: PAYOUT ═══════════════ -->
+    <div id="screen-payout" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">Payout Engine</div><div class="screen-sub">Partner & DSA payouts · TDS · Reconciliation</div></div>
+        <div class="header-actions"><button class="btn btn-outline">Run Batch</button><button class="btn btn-primary">Approve All</button></div>
+      </div>
+      <div class="payout-hero">
+        <div><div class="metric-label">Jun 2026 Batch Total</div><div class="metric-val">₹1.84 Cr</div><div class="metric-delta">148 partners · 3 pending</div></div>
+        <div><div class="metric-label">DSA / BC Payouts</div><div class="metric-val">₹92.4L</div><div class="metric-delta">Disbursement-linked</div></div>
+        <div><div class="metric-label">Platform SaaS Fee</div><div class="metric-val">₹47.8L</div><div class="metric-delta">Invoiced</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payout Calculation — Arohan DSA</div></div>
+          <div class="card-body">
+            <div style="background:var(--bg);border-radius:var(--radius-md);padding:14px;margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text-muted)">Disbursals (May)</span><span style="font-weight:600">₹28,40,000</span></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text-muted)">Commission rate</span><span style="font-weight:600">1.25%</span></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text-muted)">Gross payout</span><span style="font-weight:600">₹35,500</span></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text-muted)">TDS deducted (10%)</span><span style="font-weight:600;color:var(--red)">−₹3,550</span></div>
+              <div style="height:0.5px;background:var(--border);margin:10px 0"></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700"><span>Net payable</span><span style="color:var(--teal)">₹31,950</span></div>
+            </div>
+            <div class="chip-group">
+              <div class="chip">% Rate card</div><div class="chip">📅 Trigger logic</div>
+              <div class="chip">🧾 TDS auto</div><div class="chip">📄 Invoice gen</div>
+              <div class="chip">🏦 NEFT/RTGS</div><div class="chip">📋 Audit trail</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payout Queue</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th>Partner</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-primary">Arohan DSA Mumbai</td><td><span class="badge badge-muted">DSA</span></td><td>₹31,950</td><td><span class="badge badge-green">Sent</span></td></tr>
+                <tr><td class="cell-primary">Grameen BC Network</td><td><span class="badge badge-teal">BC</span></td><td>₹84,200</td><td><span class="badge badge-green">Sent</span></td></tr>
+                <tr><td class="cell-primary">FinGrow Fintech</td><td><span class="badge badge-teal">Fintech</span></td><td>₹1,42,600</td><td><span class="badge badge-amber">Approval</span></td></tr>
+                <tr><td class="cell-primary">Sahaj Rural BC</td><td><span class="badge badge-teal">BC</span></td><td>₹58,400</td><td><span class="badge badge-amber">Approval</span></td></tr>
+                <tr><td class="cell-primary">IndiaShelter DSA</td><td><span class="badge badge-muted">DSA</span></td><td>₹22,100</td><td><span class="badge badge-green">Sent</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: ORIGINATION ═══════════════ -->
+    <div id="screen-origination" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">Origination Module</div><div class="screen-sub">Lead to underwriting queue · 7-stage pipeline</div></div>
+        <div class="header-actions"><button class="btn btn-outline">↓ Export</button><button class="btn btn-primary">+ New Application</button></div>
+      </div>
+      <div class="section-title">Origination Pipeline</div>
+      <div class="stage-rail" id="orig-rail">
+        <div class="stage-step done" onclick="showOrigStage(0,this)"><div class="stage-num-circle" style="background:var(--teal);color:var(--navy)">1</div><div class="stage-label">Lead Capture</div><div class="stage-sub">RM / DSA / Digital</div></div>
+        <div class="stage-step done" onclick="showOrigStage(1,this)"><div class="stage-num-circle" style="background:var(--teal);color:var(--navy)">2</div><div class="stage-label">Pre-screen</div><div class="stage-sub">Rule engine</div></div>
+        <div class="stage-step active" onclick="showOrigStage(2,this)"><div class="stage-num-circle" style="background:rgba(255,255,255,0.2);color:#fff">3</div><div class="stage-label">KYC & Docs</div><div class="stage-sub">Aadhaar OTP</div></div>
+        <div class="stage-step" onclick="showOrigStage(3,this)"><div class="stage-num-circle" style="background:var(--bg2);color:var(--text-muted)">4</div><div class="stage-label">AA & Financial</div><div class="stage-sub">Consent pull</div></div>
+        <div class="stage-step" onclick="showOrigStage(4,this)"><div class="stage-num-circle" style="background:var(--bg2);color:var(--text-muted)">5</div><div class="stage-label">Bureau Pull</div><div class="stage-sub">CIBIL · Experian</div></div>
+        <div class="stage-step" onclick="showOrigStage(5,this)"><div class="stage-num-circle" style="background:var(--bg2);color:var(--text-muted)">6</div><div class="stage-label">Application</div><div class="stage-sub">Structured form</div></div>
+        <div class="stage-step" onclick="showOrigStage(6,this)"><div class="stage-num-circle" style="background:var(--bg2);color:var(--text-muted)">7</div><div class="stage-label">Queue Entry</div><div class="stage-sub">UW handoff</div></div>
+      </div>
+      <div id="orig-detail" class="card" style="margin-bottom:14px">
+        <div class="card-body">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">Stage 3 — KYC & Document Collection <span class="badge badge-teal" style="margin-left:6px">Active</span></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">Persona: Borrower · RM field officer · Digital self-serve</div>
+          <div class="chip-group"><div class="chip">Aadhaar OTP eKYC</div><div class="chip">PAN fetch</div><div class="chip">GST certificate</div><div class="chip">Photo + geo-tag</div><div class="chip">eSign consent</div></div>
+          <div class="grid-2" style="margin-bottom:0">
+            <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Aadhaar eKYC</div><div style="font-size:12px">OTP-based — name, DOB, address pulled directly from UIDAI. No manual entry.</div></div>
+            <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">PAN Verification</div><div style="font-size:12px">Real-time PAN fetch and cross-match against Aadhaar name and DOB.</div></div>
+            <div style="margin-top:10px"><div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Business Documents</div><div style="font-size:12px">GST certificate, MOA/AOA, trade licence — upload or RM-captured photo.</div></div>
+            <div style="margin-top:10px"><div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Geo-Stamp & Photo</div><div style="font-size:12px">RM captures borrower photo + GPS coordinates of business premises.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="section-title">Application Queue</div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table class="data-table">
+            <thead><tr><th>Applicant</th><th>Channel</th><th>Product</th><th>Loan Ask</th><th>Stage</th><th>SLA</th><th>Lender Match</th></tr></thead>
+            <tbody>
+              <tr><td><div class="cell-primary">Ramesh Verma</div><div class="cell-muted">Prop. · Textile trader</div></td><td><span class="badge badge-teal">RM</span></td><td>Business Term</td><td>₹8.5L</td><td><span class="badge badge-amber">KYC</span></td><td style="color:var(--amber)">18h left</td><td>Vistaar Finance</td></tr>
+              <tr><td><div class="cell-primary">Sunita Devi SHG</div><div class="cell-muted">MFI group · 12 members</div></td><td><span class="badge badge-navy">DSA</span></td><td>MFI Group Loan</td><td>₹2.4L</td><td><span class="badge badge-green">AA Pull</span></td><td style="color:var(--green)">31h left</td><td>Arohan MFI</td></tr>
+              <tr><td><div class="cell-primary">Mehta Steel Works</div><div class="cell-muted">Partnership firm</div></td><td><span class="badge badge-muted">Digital</span></td><td>Invoice Finance</td><td>₹24L</td><td><span class="badge badge-teal">Bureau</span></td><td style="color:var(--green)">42h left</td><td>Lendingkart</td></tr>
+              <tr><td><div class="cell-primary">Priya Agro Traders</div><div class="cell-muted">Sole prop. · Agri</div></td><td><span class="badge badge-teal">RM</span></td><td>KCC / Agri</td><td>₹3.2L</td><td><span class="badge badge-muted">Queue</span></td><td style="color:var(--text-muted)">48h left</td><td>SBI MSME</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: UNDERWRITING ═══════════════ -->
+    <div id="screen-underwriting" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">Underwriting Workbench</div><div class="screen-sub">Credit officer view · 12 applications in queue</div></div>
+        <div class="header-actions"><button class="btn btn-outline">My Queue</button><button class="btn btn-navy">Sanction Grid</button></div>
+      </div>
+      <div class="metric-row cols-4">
+        <div class="metric-card"><div class="metric-label">In Queue</div><div class="metric-val">12</div><div class="metric-delta" style="color:var(--amber)">3 SLA at risk</div></div>
+        <div class="metric-card"><div class="metric-label">Avg TAT</div><div class="metric-val">26h</div><div class="metric-delta delta-up">▲ -4h this week</div></div>
+        <div class="metric-card"><div class="metric-label">Approval Rate</div><div class="metric-val">68%</div><div class="metric-delta delta-up">▲ +3pp MoM</div></div>
+        <div class="metric-card"><div class="metric-label">Override Rate</div><div class="metric-val">4.2%</div><div class="metric-delta delta-up">Within policy</div></div>
+      </div>
+      <div class="grid-2-1">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Ramesh Verma — Application Review</div><span class="badge badge-amber">SLA 18h</span></div>
+          <div class="card-body">
+            <div class="grid-2" style="margin-bottom:12px">
+              <div style="background:var(--bg);border-radius:var(--radius-md);padding:12px">
+                <div class="section-title" style="margin-bottom:6px">CIBIL Score</div>
+                <div style="font-size:28px;font-weight:700;color:var(--green)">742</div>
+                <div style="font-size:11px;color:var(--text-muted)">No DPD · 4 active TLs · 2 enquiries 6M</div>
+              </div>
+              <div style="background:var(--bg);border-radius:var(--radius-md);padding:12px">
+                <div class="section-title" style="margin-bottom:6px">AA Cashflow</div>
+                <div style="font-size:28px;font-weight:700;color:var(--navy)">₹2.8L</div>
+                <div style="font-size:11px;color:var(--text-muted)">Avg monthly credit · 12M Bank stmt</div>
+              </div>
+            </div>
+            <div class="section-title">Scorecard</div>
+            <div class="bar-row"><div class="bar-label">Credit history</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--green)"></div></div><div class="bar-val" style="color:var(--green)">82/100</div></div>
+            <div class="bar-row"><div class="bar-label">Cashflow stability</div><div class="bar-track"><div class="bar-fill" style="width:74%;background:var(--teal)"></div></div><div class="bar-val">74/100</div></div>
+            <div class="bar-row"><div class="bar-label">Business vintage</div><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--teal)"></div></div><div class="bar-val">70/100</div></div>
+            <div class="bar-row"><div class="bar-label">Obligation ratio</div><div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--amber)"></div></div><div class="bar-val" style="color:var(--amber)">65/100</div></div>
+            <div class="divider"></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" style="flex:1">✓ Sanction ₹7L</button>
+              <button class="btn btn-outline">Counter-offer</button>
+              <button class="btn" style="background:var(--red-pale);color:var(--red)">Decline</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="card-header"><div class="card-title">Queue Priority</div></div>
+            <div class="card-body" style="padding:0">
+              <table class="data-table">
+                <thead><tr><th>Applicant</th><th>Score</th><th>SLA</th></tr></thead>
+                <tbody>
+                  <tr><td class="cell-primary" style="color:var(--amber)">Ramesh Verma</td><td><span class="badge badge-green">742</span></td><td style="color:var(--amber)">18h</td></tr>
+                  <tr><td class="cell-primary">Sunita SHG</td><td><span class="badge badge-teal">—</span></td><td>31h</td></tr>
+                  <tr><td class="cell-primary">Mehta Steel</td><td><span class="badge badge-green">718</span></td><td>42h</td></tr>
+                  <tr><td class="cell-primary">Priya Agro</td><td><span class="badge badge-muted">—</span></td><td>48h</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Sanction Grid</div></div>
+            <div class="card-body">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Business Term — Vistaar Finance</div>
+              <div class="bar-row"><div class="bar-label">Score 750+</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val">Up to ₹25L</div></div>
+              <div class="bar-row"><div class="bar-label">Score 700–749</div><div class="bar-track"><div class="bar-fill" style="width:60%;background:var(--teal)"></div></div><div class="bar-val">Up to ₹15L</div></div>
+              <div class="bar-row"><div class="bar-label">Score 650–699</div><div class="bar-track"><div class="bar-fill" style="width:32%;background:var(--amber)"></div></div><div class="bar-val">Up to ₹8L</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: COLLECTXQ ═══════════════ -->
+    <div id="screen-collectxq" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">CollectXQ</div><div class="screen-sub">AI-powered collections engine · DPD-bucket campaign management</div></div>
+        <div class="header-actions"><button class="btn btn-outline">+ Campaign</button><button class="btn btn-navy">AI Allocate</button></div>
+      </div>
+      <div class="metric-row cols-4">
+        <div class="metric-card"><div class="metric-label">Accounts Managed</div><div class="metric-val">6,384</div><div class="metric-delta delta-up">▲ All DPD buckets</div></div>
+        <div class="metric-card"><div class="metric-label">Recovery Rate</div><div class="metric-val">68.4%</div><div class="metric-delta delta-up">▲ +3.2pp MoM</div></div>
+        <div class="metric-card"><div class="metric-label">Active Agents</div><div class="metric-val">94</div><div class="metric-delta">Field deployed</div></div>
+        <div class="metric-card"><div class="metric-label">PTP Fulfilment</div><div class="metric-val" style="color:var(--teal)">68%</div><div class="metric-delta delta-up">▲ +4pp MoM</div></div>
+      </div>
+      <div class="section-title">Campaign Performance by Bucket</div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-body" style="padding:0">
+          <table class="data-table">
+            <thead><tr><th>DPD Bucket</th><th>Accounts</th><th>Channel</th><th>Contact Rate</th><th>Recovery</th><th>AI Propensity</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-green">DPD 1–30</span></td><td>5,240</td><td>SMS + IVR + WhatsApp</td><td>72%</td><td style="color:var(--green);font-weight:600">41% self-cured</td><td><span class="badge badge-teal">High</span></td><td><span class="badge badge-green">Active</span></td></tr>
+              <tr><td><span class="badge badge-amber">DPD 31–60</span></td><td>820</td><td>Field visit + Call</td><td>94%</td><td style="color:var(--teal);font-weight:600">68% PTP</td><td><span class="badge badge-amber">Medium</span></td><td><span class="badge badge-amber">Active</span></td></tr>
+              <tr><td><span class="badge badge-red">DPD 61–90</span></td><td>210</td><td>Legal + Field</td><td>88%</td><td style="color:var(--amber);font-weight:600">35% settled</td><td><span class="badge badge-red">Low</span></td><td><span class="badge badge-amber">Active</span></td></tr>
+              <tr><td><span class="badge badge-red">DPD 90+</span></td><td>112</td><td>Legal / SARFAESI</td><td>62%</td><td style="color:var(--red);font-weight:600">18 SARFAESI</td><td><span class="badge badge-red">Very Low</span></td><td><span class="badge badge-red">Legal</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">AI Allocation Engine</div><span class="badge badge-teal">Live</span></div>
+          <div class="card-body">
+            <div style="background:var(--teal-pale);border-radius:var(--radius-md);padding:14px;border:0.5px solid var(--teal-mid);margin-bottom:12px">
+              <div style="font-size:12px;font-weight:700;color:var(--teal-dim);margin-bottom:6px">Propensity-to-Pay Model</div>
+              <div style="font-size:11px;color:var(--text-mid);line-height:1.6">Scores each account at bucket entry using DPD history, outstanding balance, payment behavioural patterns, and contact responsiveness. Routes high-propensity accounts to digital channels, low-propensity to field officers.</div>
+            </div>
+            <div class="section-title">Channel Routing Logic</div>
+            <div class="bar-row"><div class="bar-label">SMS / IVR (auto)</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--teal)"></div></div><div class="bar-val">High PTP</div></div>
+            <div class="bar-row"><div class="bar-label">WhatsApp bot</div><div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--teal)"></div></div><div class="bar-val">Med-high</div></div>
+            <div class="bar-row"><div class="bar-label">Field officer</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:var(--amber)"></div></div><div class="bar-val">Med-low</div></div>
+            <div class="bar-row"><div class="bar-label">Legal escalation</div><div class="bar-track"><div class="bar-fill" style="width:15%;background:var(--red)"></div></div><div class="bar-val">Very low</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">AePS Field Collection</div></div>
+          <div class="card-body">
+            <div style="background:rgba(13,27,62,0.04);border-radius:var(--radius-md);padding:14px;margin-bottom:12px">
+              <div style="font-size:12px;font-weight:700;margin-bottom:8px">Today's Field Summary</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div><div style="font-size:10px;color:var(--text-muted)">Visits completed</div><div style="font-size:18px;font-weight:700;color:var(--navy)">47</div></div>
+                <div><div style="font-size:10px;color:var(--text-muted)">AePS collected</div><div style="font-size:18px;font-weight:700;color:var(--teal)">₹4.2L</div></div>
+                <div><div style="font-size:10px;color:var(--text-muted)">PTPs captured</div><div style="font-size:18px;font-weight:700;color:var(--gold)">31</div></div>
+                <div><div style="font-size:10px;color:var(--text-muted)">BBPS receipts</div><div style="font-size:18px;font-weight:700;color:var(--navy)">18</div></div>
+              </div>
+            </div>
+            <div class="section-title">Top Field Agents</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:10px;font-size:12px"><div style="width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">RK</div><div style="flex:1">Rohit Kumar</div><span class="badge badge-green">₹84K</span></div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:12px"><div style="width:24px;height:24px;border-radius:50%;background:var(--slate);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">SP</div><div style="flex:1">Savita Patil</div><span class="badge badge-teal">₹71K</span></div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:12px"><div style="width:24px;height:24px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">AJ</div><div style="flex:1">Arjun Joshi</div><span class="badge badge-amber">₹58K</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: PERSONAS ═══════════════ -->
+    <div id="screen-personas" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">Persona Architecture</div><div class="screen-sub">Six role-adaptive dashboard views across the credit lifecycle</div></div>
+      </div>
+      <div class="persona-grid" id="persona-grid">
+        <div class="persona-card selected" onclick="showPersonaDetail('cxo',this)">
+          <div class="persona-avatar" style="background:rgba(13,27,62,0.08)">👑</div>
+          <div class="persona-name">CXO / Portfolio Head</div>
+          <div class="persona-role">Strategic oversight, risk governance, P&L accountability</div>
+          <div class="persona-tags"><span class="badge badge-teal">PAR Heatmap</span><span class="badge badge-navy">ECL Model</span><span class="badge badge-muted">Revenue P&L</span></div>
+        </div>
+        <div class="persona-card" onclick="showPersonaDetail('credit',this)">
+          <div class="persona-avatar" style="background:var(--teal-pale)">🛡</div>
+          <div class="persona-name">Credit Officer</div>
+          <div class="persona-role">Application review, credit decisioning, policy compliance</div>
+          <div class="persona-tags"><span class="badge badge-teal">Bureau Panel</span><span class="badge badge-green">Scorecard</span><span class="badge badge-muted">Queue</span></div>
+        </div>
+        <div class="persona-card" onclick="showPersonaDetail('rm',this)">
+          <div class="persona-avatar" style="background:var(--gold-pale)">📍</div>
+          <div class="persona-name">RM / Field Officer</div>
+          <div class="persona-role">Lead sourcing, KYC, field collections, PTP capture</div>
+          <div class="persona-tags"><span class="badge badge-amber">Lead Queue</span><span class="badge badge-green">AePS</span><span class="badge badge-teal">BBPS</span></div>
+        </div>
+        <div class="persona-card" onclick="showPersonaDetail('lender',this)">
+          <div class="persona-avatar" style="background:var(--teal-pale)">🏦</div>
+          <div class="persona-name">Lender / Bank Admin</div>
+          <div class="persona-role">Product configuration, limits, co-lending management</div>
+          <div class="persona-tags"><span class="badge badge-navy">Product Config</span><span class="badge badge-amber">Pool Health</span></div>
+        </div>
+        <div class="persona-card" onclick="showPersonaDetail('partner',this)">
+          <div class="persona-avatar" style="background:rgba(13,27,62,0.06)">🤝</div>
+          <div class="persona-name">Distribution Partner</div>
+          <div class="persona-role">DSA / BC sourcing, pipeline tracking, commission payout</div>
+          <div class="persona-tags"><span class="badge badge-muted">Pipeline</span><span class="badge badge-green">Payouts</span><span class="badge badge-amber">Conversion</span></div>
+        </div>
+        <div class="persona-card" onclick="showPersonaDetail('borrower',this)">
+          <div class="persona-avatar" style="background:var(--gold-pale)">👤</div>
+          <div class="persona-name">MSME Borrower</div>
+          <div class="persona-role">B2B2C end node — self-service credit journey</div>
+          <div class="persona-tags"><span class="badge badge-teal">Application</span><span class="badge badge-green">Repayment</span><span class="badge badge-muted">Statement</span></div>
+        </div>
+      </div>
+      <div id="persona-detail-panel" class="card">
+        <div class="card-body" id="persona-detail-body">
+          <div style="color:var(--text-muted);font-size:12px">Click any persona card to see their dashboard modules.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN: DISBURSAL ═══════════════ -->
+    <div id="screen-disbursal" class="screen">
+      <div class="screen-header">
+        <div><div class="screen-title">Disbursal Module</div><div class="screen-sub">NACH setup · Fund transfer · eSign · BBPS</div></div>
+        <div class="header-actions"><button class="btn btn-primary">Initiate Disbursal</button></div>
+      </div>
+      <div class="metric-row cols-3">
+        <div class="metric-card"><div class="metric-label">Disbursed Today</div><div class="metric-val">₹1.4 Cr</div><div class="metric-delta delta-up">▲ 18 loans</div></div>
+        <div class="metric-card"><div class="metric-label">NACH Success Rate</div><div class="metric-val" style="color:var(--green)">96.2%</div><div class="metric-delta delta-up">▲ +0.8pp</div></div>
+        <div class="metric-card"><div class="metric-label">Avg Disbursal TAT</div><div class="metric-val">4.2h</div><div class="metric-delta delta-up">Post-sanction</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Disbursal Queue</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th>Borrower</th><th>Amount</th><th>NACH</th><th>eSign</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-primary">Ramesh Verma</td><td>₹7L</td><td><span class="badge badge-green">Done</span></td><td><span class="badge badge-green">Done</span></td><td><span class="badge badge-amber">Processing</span></td></tr>
+                <tr><td class="cell-primary">Mehta Steel Works</td><td>₹22L</td><td><span class="badge badge-amber">Pending</span></td><td><span class="badge badge-green">Done</span></td><td><span class="badge badge-muted">Waiting</span></td></tr>
+                <tr><td class="cell-primary">Priya Agro</td><td>₹3L</td><td><span class="badge badge-green">Done</span></td><td><span class="badge badge-green">Done</span></td><td><span class="badge badge-green">Sent</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payment Rails</div></div>
+          <div class="card-body">
+            <div class="chip-group">
+              <div class="chip">NEFT</div><div class="chip">RTGS</div><div class="chip">IMPS</div><div class="chip">NACH mandate</div><div class="chip">BBPS</div><div class="chip">UPI (pilot)</div>
+            </div>
+            <div class="section-title" style="margin-top:12px">Today's Disbursal Mix</div>
+            <div class="bar-row"><div class="bar-label">NEFT</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--teal)"></div></div><div class="bar-val">55%</div></div>
+            <div class="bar-row"><div class="bar-label">RTGS</div><div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--navy)"></div></div><div class="bar-val">30%</div></div>
+            <div class="bar-row"><div class="bar-label">IMPS</div><div class="bar-track"><div class="bar-fill" style="width:15%;background:var(--gold)"></div></div><div class="bar-val">15%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── Sparkline helper ─────────────────────────────────
+function sp(vals) {
+  const max = Math.max(...vals);
+  return vals.map((v,i) => {
+    const h = Math.round((v/max)*26);
+    const hi = i === vals.length-1 ? ' hi' : '';
+    return `<div class="spark-bar${hi}" style="height:${h}px"></div>`;
+  }).join('');
+}
+document.querySelectorAll('.sparkline').forEach(el => {});
+
+// ── Navigation ───────────────────────────────────────
+function nav(screen, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = {
+    overview:'Platform Overview', portfolio:'Portfolio Command',
+    revenue:'Revenue Analytics', onboard:'Lender Onboarding',
+    payout:'Payout Engine', collectxq:'CollectXQ',
+    origination:'Origination Module', underwriting:'Underwriting Workbench',
+    disbursal:'Disbursal Module', personas:'Persona Architecture'
+  };
+  document.getElementById('topbar-title').textContent = titles[screen] || screen;
+}
+
+// ── Persona Switcher ─────────────────────────────────
+function switchPersona(name, el) {
+  document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('topbar-sub').textContent = name + ' View · June 17, 2026';
+}
+
+// ── Origination Stage Detail ─────────────────────────
+const origStages = [
+  { title:'Stage 1 — Lead Capture', badge:'Entry point', badgeClass:'badge-teal', role:'RM · DSA / BC · Borrower self-serve', chips:['Geo-tagged lead','Campaign source','DSA submission','Digital form','Mobile OTP'], body:'Three channels converge at the same application object. Mobile+PAN dedup runs immediately. The RM app supports offline mode with server sync on next connectivity — critical for rural MSME origination.' },
+  { title:'Stage 2 — Pre-screen & Eligibility', badge:'Auto-filter', badgeClass:'badge-amber', role:'Rule engine · Automated · No human touch', chips:['Pincode check','Business vintage','Loan quantum','Segment match','Product mapping'], body:'Rule engine runs before any human sees the application. Pincode serviceability, business vintage thresholds, and quantum vs sanction grid. Declined applications get structured reason codes — critical for DSA partner trust.' },
+  { title:'Stage 3 — KYC & Document Collection', badge:'Active', badgeClass:'badge-teal', role:'Borrower · RM field officer · Digital self-serve', chips:['Aadhaar OTP eKYC','PAN fetch','GST certificate','Photo + geo-tag','eSign consent'], body:'Aadhaar OTP eKYC pulls verified name, DOB, and address from UIDAI directly — no manual entry. PAN cross-matched in real time. RM captures geo-stamped business photo that becomes part of the credit file.' },
+  { title:'Stage 4 — AA & Financial Data', badge:'RBI regulated', badgeClass:'badge-navy', role:'Borrower consent · System pull · AA framework', chips:['AA consent OTP','Bank stmt 12M','Avg monthly balance','GSTR 6M','ITR fetch'], body:'RBI-regulated consent-based bank statement pull via Account Aggregator. 180-day consent granted via mobile OTP. 12 months of cashflow data — the primary underwriting signal for MSME borrowers without audited financials.' },
+  { title:'Stage 5 — Bureau Pull', badge:'Hard pull', badgeClass:'badge-amber', role:'Automated · Credit Officer view · System-triggered', chips:['CIBIL TransUnion','Experian (dual)','DPD history','Enquiry count','Commercial bureau'], body:'Hard pull on CIBIL and Experian (configurable per lender). Individual proprietor/partner score + commercial MSME bureau. Key flags — settled accounts, DPD 90+ history, enquiry clusters — surfaced directly in the UW workbench.' },
+  { title:'Stage 6 — Application Form', badge:'Structured', badgeClass:'badge-muted', role:'RM · Borrower self-serve', chips:['Business details','Loan purpose','Collateral offered','Self-declared income','Existing liabilities'], body:'Structured data capture with real-time field validation. Cannot submit with missing mandatory fields. Guarantor references captured. Last human-completed stage before automated queue entry.' },
+  { title:'Stage 7 — Underwriting Queue Entry', badge:'Handoff', badgeClass:'badge-green', role:'System · Credit Officer receives notification', chips:['Completeness check','Lender matching','Priority scoring','SLA clock start','UW push alert'], body:'Completeness engine checks all fields and documents before queue entry. Lender matching selects best-fit lender by segment, quantum, and AUM headroom. SLA clock starts. Credit officer receives push notification with application summary card.' },
+];
+function showOrigStage(idx, el) {
+  document.querySelectorAll('.stage-step').forEach((s,i) => {
+    if (i < idx) { s.classList.add('done'); s.classList.remove('active'); }
+    else if (i === idx) { s.classList.add('active'); s.classList.remove('done'); }
+    else { s.classList.remove('active','done'); }
+  });
+  const s = origStages[idx];
+  document.getElementById('orig-detail').innerHTML = `<div class="card-body">
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">${s.title} <span class="badge ${s.badgeClass}" style="margin-left:6px">${s.badge}</span></div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">Persona: ${s.role}</div>
+    <div class="chip-group">${s.chips.map(c=>`<div class="chip">${c}</div>`).join('')}</div>
+    <div style="font-size:12px;color:var(--text-mid);line-height:1.7;margin-top:8px">${s.body}</div>
+  </div>`;
+}
+
+// ── Persona Detail ────────────────────────────────────
+const personaData = {
+  cxo: { name:'CXO / Portfolio Head', color:'var(--navy)', modules:[
+    ['Portfolio PAR Heatmap','DPD 0/30/60/90+ by lender, product, and vintage'],
+    ['ECL & NPA Forecast','Expected credit loss model with scenario sliders and RBI flags'],
+    ['Revenue Co-pilot','Module-wise, lender-wise, product-wise P&L with yield analytics'],
+    ['Collections Command','CollectXQ campaign performance, PTP rates, agent scorecards'],
+    ['Lender Mix & Limits','Concentration risk, sanction utilisation, co-lending split'],
+    ['DPDP & Regulatory','RBI Fair Practice Code, consent log, audit trail dashboard'],
+  ]},
+  credit: { name:'Credit Officer / Underwriter', color:'var(--teal-dim)', modules:[
+    ['Application Queue','Priority-sorted applications with SLA countdown and bureau status'],
+    ['Bureau & AA Panel','CIBIL / Experian pull, AA cashflow analysis, GSTR signals'],
+    ['Scorecard Engine','Configurable rule-based + ML scorecard with override workflow'],
+    ['Sanction Grid','Loan amount, tenure, rate banding by risk segment and product'],
+    ['Policy Override Log','All deviations tracked with approver chain and rationale'],
+    ['Disbursement Trigger','Post-approval disbursal initiation with NACH mandate check'],
+  ]},
+  rm: { name:'RM / Field Officer', color:'var(--gold-dim)', modules:[
+    ['Lead & Visit Queue','Geo-tagged leads sorted by proximity, priority, and DPD urgency'],
+    ['KYC & eSign Flow','Aadhaar OTP, PAN verification, digital consent on-device'],
+    ['AePS Collection','Aadhaar-enabled cashless payment collection with offline sync'],
+    ['BBPS Repayment','Biller-linked EMI payment with receipt and mandate confirmation'],
+    ['PTP Recording','Promise-to-pay date capture with auto follow-up trigger'],
+    ['Visit Notes & GPS','Field notes, photos, and GPS stamp for compliance and coaching'],
+  ]},
+  lender: { name:'Lender / Bank Admin', color:'var(--slate)', modules:[
+    ['Product Configurator','Loan type, eligibility rules, rate card, moratorium, prepayment logic'],
+    ['Sanction & Limit Board','Overall sanction, utilised, available — real-time AUM view'],
+    ['Co-lending Desk','Co-origination splits, waterfall logic, and regulatory reporting'],
+    ['Pool Health Dashboard','Vintage analysis, PAR by product, NPA curve vs expectations'],
+    ['Integration Monitor','API uptime, webhook delivery rates, error log and retry queue'],
+    ['Billing & Invoices','Platform fee invoices, usage reports, and reconciliation'],
+  ]},
+  partner: { name:'Distribution Partner (DSA / BC)', color:'var(--navy)', modules:[
+    ['Lead Submission','Application submission with document upload and status tracking'],
+    ['Pipeline Tracker','Real-time status from submitted through sanctioned to disbursed'],
+    ['Commission Calculator','Real-time payout estimate per application before submission'],
+    ['Payout History','Batch-wise payout statements with TDS certificate download'],
+    ['Training & Compliance','Product knowledge base, compliance training, and certification'],
+    ['Referral Analytics','Conversion funnel, rejection reasons, and product performance'],
+  ]},
+  borrower: { name:'MSME Borrower (B2B2C End Node)', color:'var(--gold-dim)', modules:[
+    ['Application Journey','Step-by-step guided application with document upload and eSign'],
+    ['Loan Statement','EMI schedule, outstanding, interest breakup, prepayment calculator'],
+    ['Repayment Portal','BBPS-linked payment, NACH mandate update, partial prepayment'],
+    ['Account Aggregator','Consent management for bank statement sharing and renewal'],
+    ['Credit Journey','Score tracking, eligibility improvement nudges, top-up offers'],
+    ['Support & Dispute','EMI dispute, NOC request, and grievance tracking'],
+  ]},
+};
+function showPersonaDetail(type, el) {
+  document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const p = personaData[type];
+  document.getElementById('persona-detail-body').innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:${p.color};margin-bottom:14px">${p.name} — Dashboard Modules</div>
+    <div class="grid-3" style="margin-bottom:0">
+      ${p.modules.map(([t,d]) => `<div style="padding:12px;background:var(--bg);border-radius:var(--radius-md);border:0.5px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">${t}</div>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.5">${d}</div>
+      </div>`).join('')}
+    </div>`;
+}
+
+// ── Login ────────────────────────────────────────────
+function doLogin() {
+  var pass = document.getElementById('login-pass').value;
+  var err  = document.getElementById('login-err');
+  if (pass === 'Kojaagari123#') {
+    document.getElementById('login-overlay').style.display = 'none';
+    err.textContent = '';
+  } else {
+    err.textContent = 'Incorrect password. Please try again.';
+    document.getElementById('login-pass').style.borderColor = 'var(--red)';
+    setTimeout(function(){ document.getElementById('login-pass').style.borderColor = 'var(--border)'; }, 1500);
+  }
+}
+
+</script>
+</body>
+</html>
